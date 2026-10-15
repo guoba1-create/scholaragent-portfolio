@@ -1,0 +1,163 @@
+server:
+  port: "${SERVER_PORT:8080}"
+
+app:
+  admin:
+    token-header: "${APP_ADMIN_TOKEN_HEADER:X-Admin-Token}"
+    token: "${APP_ADMIN_TOKEN:}"
+    dev-auto-authorize: "${APP_ADMIN_DEV_AUTO_AUTHORIZE:true}"
+  identity:
+    mode: "${APP_IDENTITY_MODE:dev}"
+    user-header: "${APP_IDENTITY_USER_HEADER:X-Authenticated-User-Id}"
+    space-header: "${APP_IDENTITY_SPACE_HEADER:X-Knowledge-Space-Id}"
+    gateway-token-header: "${APP_IDENTITY_GATEWAY_TOKEN_HEADER:X-Identity-Gateway-Token}"
+    gateway-token: "${APP_IDENTITY_GATEWAY_TOKEN:}"
+    dev-user-id: "${APP_DEV_USER_ID:local-user}"
+    dev-space-id: "${APP_DEV_SPACE_ID:local-space}"
+  readiness:
+    fail-fast: "${APP_READINESS_FAIL_FAST:false}"
+    redis-required: "${APP_REDIS_REQUIRED:true}"
+
+spring:
+  kafka:
+    bootstrap-servers: "${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}"
+    consumer:
+      group-id: "${KAFKA_CONSUMER_GROUP:agent-console-local}"
+      auto-offset-reset: earliest
+  data:
+    redis:
+      host: "${REDIS_HOST:localhost}"
+      port: "${REDIS_PORT:6379}"
+      password: "${REDIS_PASSWORD:}"
+  config:
+    import:
+      - classpath:prompts.yml
+
+langchain4j:
+  community:
+    dashscope:
+      streaming-chat-model:
+        api-key: "${DASHSCOPE_API_KEY:}"
+        model-name: "${DASHSCOPE_CHAT_MODEL:qwen-plus}"
+      chat-model:
+        api-key: "${DASHSCOPE_API_KEY:}"
+        model-name: "${DASHSCOPE_CHAT_MODEL:qwen-plus}"
+      embedding-model:
+        api-key: "${DASHSCOPE_API_KEY:}"
+        model-name: "${DASHSCOPE_EMBEDDING_MODEL:text-embedding-v3}"
+
+pinecone:
+  api-key: "${PINECONE_API_KEY:}"
+  index-name: "${PINECONE_INDEX_NAME:replace-me}"
+  namespace: "${PINECONE_NAMESPACE:default}"
+  dimension: "${PINECONE_DIMENSION:1024}"
+
+agent:
+  internal:
+    token: "${AGENT_INTERNAL_TOKEN:}"
+    token-header: "X-Agent-Runtime-Token"
+    allow-blank-token: false
+  search:
+    searxng-url: "${SEARXNG_URL:http://localhost:8888}"
+  queue:
+    backend: "${AGENT_QUEUE_BACKEND:kafka}"
+    kafka:
+      enabled: "${AGENT_QUEUE_KAFKA_ENABLED:true}"
+      topic: "${AGENT_QUEUE_KAFKA_TOPIC:agent.telegram.notify}"
+  runtime:
+    python:
+      enabled: "${AGENT_RUNTIME_PYTHON_ENABLED:true}"
+    fallback-to-java: false
+  grpc:
+    python:
+      host: "${AGENT_GRPC_PYTHON_HOST:localhost}"
+      port: "${AGENT_GRPC_PYTHON_PORT:50051}"
+
+literature-rag:
+  chunk-size: "${RAG_CHUNK_SIZE:500}"
+  chunk-overlap: "${RAG_CHUNK_OVERLAP:50}"
+
+team-rag:
+  document:
+    section-detection-enabled: true
+  grobid:
+    enabled: "${GROBID_ENABLED:true}"
+    base-url: "${GROBID_BASE_URL:http://localhost:8070}"
+    timeout-seconds: "${GROBID_TIMEOUT_SECONDS:20}"
+  memory-window-size: "${MEMORY_WINDOW_SIZE:20}"
+  runtime:
+    query-rewrite-enabled: "${RAG_QUERY_REWRITE_ENABLED:true}"
+    rerank-enabled: "${RAG_RERANK_ENABLED:true}"
+    rerank-cache-enabled: "${RAG_RERANK_CACHE_ENABLED:true}"
+    answer-cache-enabled: "${RAG_ANSWER_CACHE_ENABLED:true}"
+    parallel-retrieval-enabled: "${RAG_PARALLEL_RETRIEVAL_ENABLED:true}"
+    hybrid-sparse-enabled: "${RAG_HYBRID_SPARSE_ENABLED:true}"
+    sparse-top-k: "${RAG_SPARSE_TOP_K:20}"
+    retrieval-executor-threads: "${RAG_RETRIEVAL_THREADS:4}"
+
+context:
+  quick-qa-max-prompt-tokens: "${CONTEXT_QUICK_QA_MAX_PROMPT_TOKENS:8192}"
+  workflow-max-prompt-tokens: "${CONTEXT_WORKFLOW_MAX_PROMPT_TOKENS:16384}"
+  deep-research-max-prompt-tokens: "${CONTEXT_DEEP_RESEARCH_MAX_PROMPT_TOKENS:24576}"
+  soft-limit-ratio: "${CONTEXT_SOFT_LIMIT_RATIO:0.75}"
+  model-compression-enabled: "${CONTEXT_MODEL_COMPRESSION_ENABLED:true}"
+  compression-model-name: "${CONTEXT_COMPRESSION_MODEL_NAME:configured-chat-model}"
+  model-context-window: "${CONTEXT_MODEL_WINDOW:32768}"
+  model-max-output-tokens: "${CONTEXT_MODEL_MAX_OUTPUT_TOKENS:8192}"
+  tokenizer: "${CONTEXT_TOKENIZER:compatible-cjk-estimator-v1}"
+
+workflow:
+  executor:
+    core-size: "${WORKFLOW_EXECUTOR_CORE_SIZE:4}"
+    max-size: "${WORKFLOW_EXECUTOR_MAX_SIZE:12}"
+    queue-capacity: "${WORKFLOW_EXECUTOR_QUEUE_CAPACITY:200}"
+
+document:
+  ingest:
+    kafka:
+      enabled: "${DOCUMENT_INGEST_KAFKA_ENABLED:true}"
+      topic: "${DOCUMENT_INGEST_KAFKA_TOPIC:document.ingest}"
+      dlq-topic: "${DOCUMENT_INGEST_KAFKA_DLQ_TOPIC:document.ingest.dlq}"
+      group-id: "${DOCUMENT_INGEST_KAFKA_GROUP:document-indexer-v1}"
+    staging-directory: "${DOCUMENT_INGEST_STAGING_DIR:data/ingest-queue}"
+    local-threads: "${DOCUMENT_INGEST_LOCAL_THREADS:2}"
+    local-queue-capacity: "${DOCUMENT_INGEST_LOCAL_QUEUE_CAPACITY:100}"
+    max-file-bytes: "${DOCUMENT_INGEST_MAX_FILE_BYTES:52428800}"
+    staging-max-age-hours: "${DOCUMENT_INGEST_STAGING_MAX_AGE_HOURS:24}"
+
+llm:
+  cache:
+    enabled: "${LLM_CACHE_ENABLED:true}"
+    memory-max-size: "${LLM_CACHE_MEMORY_MAX_SIZE:500}"
+    memory-ttl-minutes: "${LLM_CACHE_MEMORY_TTL_MINUTES:10}"
+    redis-ttl-hours: "${LLM_CACHE_REDIS_TTL_HOURS:1}"
+
+wechat:
+  app-id: "${WECHAT_APP_ID:}"
+  app-secret: "${WECHAT_APP_SECRET:}"
+  token: "${WECHAT_TOKEN:}"
+  aes-key: "${WECHAT_AES_KEY:}"
+  public-app-base-url: "${PUBLIC_APP_BASE_URL:http://localhost:8080}"
+
+telegram:
+  bot-token: "${TELEGRAM_BOT_TOKEN:}"
+  polling-enabled: "${TELEGRAM_POLLING_ENABLED:false}"
+  polling-timeout-seconds: "${TELEGRAM_POLLING_TIMEOUT_SECONDS:25}"
+  polling-limit: "${TELEGRAM_POLLING_LIMIT:20}"
+  skip-old-updates-on-start: "${TELEGRAM_SKIP_OLD_UPDATES_ON_START:true}"
+  request-timeout-seconds: "${TELEGRAM_REQUEST_TIMEOUT_SECONDS:30}"
+  public-app-base-url: "${PUBLIC_APP_BASE_URL:http://localhost:8080}"
+  proxy:
+    enabled: "${TELEGRAM_PROXY_ENABLED:false}"
+    type: "${TELEGRAM_PROXY_TYPE:http}"
+    host: "${TELEGRAM_PROXY_HOST:127.0.0.1}"
+    port: "${TELEGRAM_PROXY_PORT:7890}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized

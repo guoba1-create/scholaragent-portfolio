@@ -1,0 +1,55 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "type": "timeseries", "title": "Workflow throughput by strategy/status", "id": 1,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [{"expr": "sum by (strategy,status) (rate(agent_workflow_terminal_total[5m]))", "legendFormat": "{{strategy}} / {{status}}"}]
+    },
+    {
+      "type": "timeseries", "title": "Workflow p95 latency", "id": 2,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le,strategy) (rate(agent_workflow_duration_business_seconds_bucket[5m])))", "legendFormat": "{{strategy}}"}]
+    },
+    {
+      "type": "barchart", "title": "Routing decisions", "id": 3,
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+      "targets": [{"expr": "sum by (intent,strategy,source) (increase(agent_routing_decisions_total[1h]))", "legendFormat": "{{intent}} / {{strategy}} / {{source}}"}]
+    },
+    {
+      "type": "stat", "title": "Empty retrieval ratio", "id": 4,
+      "gridPos": {"h": 8, "w": 4, "x": 8, "y": 8},
+      "targets": [{"expr": "sum(rate(agent_retrieval_requests_total{empty=\"true\"}[10m])) / clamp_min(sum(rate(agent_retrieval_requests_total[10m])), 0.000001)"}],
+      "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []}
+    },
+    {
+      "type": "timeseries", "title": "Context tokens before/after", "id": 5,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {"expr": "sum by (strategy) (rate(agent_context_tokens_original_sum[5m]))", "legendFormat": "original {{strategy}}"},
+        {"expr": "sum by (strategy) (rate(agent_context_tokens_final_sum[5m]))", "legendFormat": "final {{strategy}}"}
+      ]
+    },
+    {
+      "type": "timeseries", "title": "Cache hit ratio by namespace", "id": 6,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "targets": [{"expr": "sum by (namespace) (rate(agent_cache_lookups_total{result=\"hit\"}[5m])) / clamp_min(sum by (namespace) (rate(agent_cache_lookups_total[5m])), 0.000001)", "legendFormat": "{{namespace}}"}],
+      "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []}
+    },
+    {
+      "type": "timeseries", "title": "Tool execution failures", "id": 7,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "targets": [{"expr": "sum by (tool,status) (rate(agent_tool_executions_total{status!=\"success\"}[5m]))", "legendFormat": "{{tool}} / {{status}}"}]
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "tags": ["agent", "rag", "langgraph"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "title": "Research Evidence Agent",
+  "uid": "research-evidence-agent-v2",
+  "version": 1
+}

@@ -1,0 +1,43 @@
+use_default_settings: true
+
+general:
+  instance_name: "Team RAG SearXNG"
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  default_lang: "auto"
+  # 关键：启用 JSON 格式输出（WebSearchTool 需要 format=json）
+  formats:
+    - html
+    - json
+
+server:
+  port: 8080
+  bind_address: "0.0.0.0"
+  secret_key: "public-local-example-change-me"
+  limiter: false
+  image_proxy: false
+
+engines:
+  # 启用学术搜索引擎（默认可能未启用）
+  - name: arxiv
+    engine: arxiv
+    shortcut: arx
+    disabled: false
+
+  # 确保通用搜索引擎可用
+  - name: google
+    engine: google
+    shortcut: g
+    disabled: false
+
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    disabled: false
+
+  - name: bing
+    engine: bing
+    shortcut: b
+    disabled: false

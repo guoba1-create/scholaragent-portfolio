@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package agent.workflow;
+
+option java_package = "com.team.rag.agent.grpc";
+option java_outer_classname = "AgentWorkflowProto";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+service AgentWorkflow {
+  // Server-streaming: Python yields events as nodes execute.
+  // The LAST event carries event_type = WORKFLOW_DONE or WORKFLOW_FAILED
+  // and the full result payload.
+  rpc RunWorkflow(RunWorkflowRequest) returns (stream WorkflowEventMsg);
+
+  // Unary: interrupt/resume control plane.
+  rpc Control(ControlRequest) returns (ControlResponse);
+}
+
+message RunWorkflowRequest {
+  string workflow_id = 1;
+  string engine = 2;
+  string profile = 3;
+  string user_id = 4;
+  string research_group_id = 5;
+  string conversation_id = 6;
+  string message = 7;
+  RouteDecisionMsg route_decision = 8;
+  google.protobuf.Struct memory_recall_ref = 9;
+  google.protobuf.Struct context_budget = 10;
+  google.protobuf.Struct metadata = 11;
+  bool resume = 12;
+  string resume_mode = 13;  // "checkpoint" or "restart"
+}
+
+message RouteDecisionMsg {
+  string intent = 1;
+  string engine = 2;
+  string task_type = 3;
+  string profile = 4;
+  double confidence = 5;
+  string reason = 6;
+  repeated string signals = 7;
+  string execution_mode = 8;  // "plan_execute_replan" | "two_stage" | "plan_confirm" (仅 workflow 引擎需要)
+}
+
+message WorkflowEventMsg {
+  string workflow_id = 1;
+  string event_id = 2;
+  int32 sequence = 3;
+  string event_type = 4;   // WORKFLOW_STARTED, AGENT_STARTED, TOOL_STARTED, TOOL_DONE, AGENT_DONE, WORKFLOW_DONE, WORKFLOW_FAILED, etc.
+  string phase = 5;        // router, agent, tool, workflow, monitor, etc.
+  string agent_name = 6;
+  string tool_name = 7;
+  string status = 8;       // RUNNING, SUCCESS, FAILED, COMPLETED, INTERRUPTED, WAITING_USER
+  string summary = 9;
+  google.protobuf.Struct payload = 10;
+  google.protobuf.Timestamp created_at = 11;
+  // Final result fields -- only populated when event_type is WORKFLOW_DONE or WORKFLOW_FAILED
+  string final_answer = 12;
+  string error_message = 13;
+  repeated google.protobuf.Struct react_steps = 14;
+  repeated google.protobuf.Struct traces = 15;
+  repeated google.protobuf.Struct messages = 16;
+  repeated google.protobuf.Struct tool_observations = 17;
+  repeated google.protobuf.Struct document_refs = 18;
+  repeated google.protobuf.Struct retrieval_diagnostics = 19;
+  google.protobuf.Struct claim_evidence_table = 20;
+  google.protobuf.Struct quality_report = 21;
+  repeated string warnings = 22;
+  google.protobuf.Struct stats = 23;
+  google.protobuf.Struct result_metadata = 24;
+}
+
+message ControlRequest {
+  string workflow_id = 1;
+  string command = 2;  // INTERRUPT or RESUME
+  google.protobuf.Struct payload = 3;
+}
+
+message ControlResponse {
+  bool success = 1;
+  string workflow_id = 2;
+  string command = 3;
+  string error = 4;
+}

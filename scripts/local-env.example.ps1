@@ -1,0 +1,10 @@
+# Copy to local-env.ps1 and fill in your own service credentials.
+$env:DASHSCOPE_API_KEY = "replace-me"
+$env:PINECONE_API_KEY = "replace-me"
+$env:PINECONE_INDEX_NAME = "replace-me"
+$env:PINECONE_SPARSE_INDEX_NAME = "replace-me"
+$env:PINECONE_SPARSE_HOST = ""
+$env:AGENT_INTERNAL_TOKEN = ""
+$env:APP_IDENTITY_MODE = "dev"
+$env:TELEGRAM_POLLING_ENABLED = "false"
+$env:PUBLIC_APP_BASE_URL = "http://localhost:8080"
